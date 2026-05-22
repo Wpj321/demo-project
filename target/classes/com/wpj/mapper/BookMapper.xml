@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace:配置mapper的命名空间，配置存在mapper接口的全限定的名称-->
+<mapper namespace="com.wpj.mapper.BookMapper">
+<!--查询图书列表 book 和 type 使用自定义结果集-->
+    <select id="getBookListCount" resultType="int">
+        select count(bid) from book
+        <where>
+            <if test="bname !=null and bname != ''">
+                and bname like concat ("%",#{bname},"%")
+            </if>
+            <if test="type != null">
+                <if test="type.tid != null and type.tid != -1">
+                    and tid = #{type.tid}
+                </if>
+            </if>
+        </where>
+    </select>
+    <!--查询图书列表 book 和 type 使用自定义结果集-->
+    <select id="getBookList" resultMap="BookInfo">
+        select * from book b left join type t on b.tid = t.tid
+        <where>
+            <if test="t.bname !=null and t.bname != ''">
+                and bname like concat ("%",#{t.bname},"%")
+            </if>
+            <if test="t.type != null">
+                <if test="t.type.tid != null and t.type.tid != -1">
+                    and b.tid = #{t.type.tid}
+                </if>
+            </if>
+        </where>
+        limit #{startIndex},#{pageSize}
+    </select>
+    <!--查询图书数量-->
+    <select id="selectBooks" resultType="int">
+        select count(bid) from book b left join type t on b.tid = t.tid
+    </select>
+    <!--自定义结果集-->
+    <resultMap id="BookInfo" type="Book">
+        <id property="bid" column="bid"></id>
+        <!--图书和类型一对一-->
+        <association property="type" javaType="Type">
+            <id property="tid" column="tid"></id>
+            <result property="tname" column="tname"></result>
+        </association>
+    </resultMap>
+</mapper>

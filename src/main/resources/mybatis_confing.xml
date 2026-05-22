@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--设置全局的属性-->
+    <settings>
+        <!--指定 MyBatis 应如何自动映射列到字段或属性。 NONE 表示关闭自动映射；PARTIAL(默认) 只会自动映射没有定义嵌套结果映射的字段。 FULL 会自动映射任何复杂的结果集（无论是否嵌套）。-->
+        <setting name="autoMappingBehavior" value="FULL"/>
+        <!--指定 MyBatis 应如何自动映射列到字段或属性。 NONE 表示关闭自动映射；PARTIAL(默认) 只会自动映射没有定义嵌套结果映射的字段。 FULL 会自动映射任何复杂的结果集（无论是否嵌套）。-->
+        <!--<setting name="autoMappingBehavior" value="FULL"/>-->
+        <setting name="lazyLoadingEnabled" value="true"/><!--懒加载-->
+        <setting name="logImpl" value="log4j"/><!--使用日志-->
+    </settings>
+<!--    typeAliases没有settings优先级高,所以放他下面-->
+    <typeAliases>
+        <!--2.指定包路径的方式 指定路径下面的所有实体类都取别名，默认情况下类名或者类名首字母小写--><!--可以结合@Alisa注解使用-->
+        <package name="com.wpj.pojo"/>
+    </typeAliases>
+<!--    发页插件-->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"></plugin>
+    </plugins>
+</configuration>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        https://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        https://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--    1.开启注解-->
+<context:component-scan base-package="com.wpj"></context:component-scan>
+    <!--2.加载数据库的资源文件-->
+<context:property-placeholder location="classpath:database.properties"></context:property-placeholder>
+    <!--3.druid的链接对象-->
+<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driverClassName" value="${driverClassName}"></property>
+    <property name="url" value="${url}"></property>
+    <property name="username" value="${uname}"></property>
+    <property name="password" value="${password}"></property>
+</bean>
+<!--    4.配置一个SqlSessionFactoryBean-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:mybatis_confing.xml"></property>
+    </bean>
+<!--    5.配置扫描mapper动态生成代理对象-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+<!--        指定扫描接口路径-->
+        <property name="basePackage" value="com.wpj.mapper"></property>
+    </bean>
+
+<!--    6.配置事务的管理对象-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+<!--7.把事务管理器配置成通知-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+<!--            模糊匹配,增删改需要，查询不需要-->
+            <!--模糊匹配正则表达式的方式，增删改需要事务处理，查询不需要事务处理-->
+            <!--查询不需要事务-->
+            <!--isolation事务隔离级别：默认跟数据库的隔离级别一致从低到高
+             1.READ_UNCOMMITTED 读未提交 脏读
+             2.READ_COMMITTED 读提交，不可重复读 oracle默认级别
+             3.REPEATABLE_READ 可重复读 mysql默认级别
+             4.SERIALIZABLE 串行化 效率较低-->
+            <!--propagation事务的传播特性：
+            1.REQUIRED：有事务就用，没有事务需要开启一个新的事务处理，执行需要事务的管理 增删改需要配置该属性
+            2.NOT_SUPPORTED：不支持事务的处理，如果有开启事务，也不用，总是不用事务执行 查询
+            3.SUPPORTS：如果有事务使用事务的方式处理，如果没有就不用，有可能会用事务的处理 查询 -->
+            <tx:method name="get*" isolation="REPEATABLE_READ" propagation="SUPPORTS"></tx:method>
+            <!--增删改 需要事务-->
+            <!--no-rollback-for="":配置不需要回滚异常类型-->
+            <!--rollback-for="" 配置需要回滚的异常类型，默认是运行时异常都回滚-->
+            <tx:method name="update*" isolation="REPEATABLE_READ" propagation="REQUIRED" ></tx:method>
+            <tx:method name="add*"  isolation="REPEATABLE_READ" propagation="REQUIRED"></tx:method>
+            <tx:method name="delete*"  isolation="REPEATABLE_READ" propagation="REQUIRED"></tx:method>
+        </tx:attributes>
+    </tx:advice>
+<!--    8.把事务的通知使用aop的技术应用到契入点service层-->
+    <aop:config>
+<!--        定影切入点-->
+        <aop:pointcut id="pc" expression="execution(* com.wpj.service.*.*(..))"/>
+<!--        把感知应用到切入点-->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pc"></aop:advisor>
+    </aop:config>
+</beans>
