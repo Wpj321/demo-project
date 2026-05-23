@@ -20,4 +20,5 @@ public interface BookService {
     public boolean deleteById(String bid);
 
     public int selectBooks (Book book);
+    //测试
 }
