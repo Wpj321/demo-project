@@ -4,5 +4,6 @@ public class Test {
     public static void main(String[] args) {
         System.out.println("这是一个用来测试的项目");
         System.out.println("这是开发人员进行项目push");
+        System.out.println("这是GitHub网页端新增的测试行");
     }
 }
